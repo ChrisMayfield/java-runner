@@ -1,0 +1,134 @@
+/* Java Runner Widget Styles */
+
+:root {
+  --jr-bg: #ffffff;
+  --jr-border: #d0d0d0;
+  --jr-toolbar-bg: #f5f5f5;
+  --jr-console-bg: #1e1e1e;
+  --jr-console-text: #d4d4d4;
+  --jr-console-error: #f44747;
+  --jr-btn-run: #28a745;
+  --jr-btn-run-hover: #218838;
+  --jr-btn-stop: #dc3545;
+  --jr-btn-stop-hover: #c82333;
+  --jr-btn-reset: #6c757d;
+  --jr-btn-reset-hover: #5a6268;
+  --jr-input-bg: #2d2d2d;
+  --jr-input-border: #555;
+  --jr-radius: 6px;
+  --jr-font-mono: "Fira Code", "Consolas", "Monaco", "Courier New", monospace;
+}
+
+.jr-widget {
+  border: 1px solid var(--jr-border);
+  border-radius: var(--jr-radius);
+  overflow: hidden;
+  margin: 1em 0;
+  background: var(--jr-bg);
+  font-family: sans-serif;
+}
+
+/* Toolbar */
+.jr-toolbar {
+  display: flex;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--jr-toolbar-bg);
+  border-bottom: 1px solid var(--jr-border);
+}
+
+.jr-btn {
+  border: none;
+  border-radius: 4px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #fff;
+  transition: background 0.15s;
+}
+
+.jr-btn-run { background: var(--jr-btn-run); }
+.jr-btn-run:hover { background: var(--jr-btn-run-hover); }
+.jr-btn-stop { background: var(--jr-btn-stop); }
+.jr-btn-stop:hover { background: var(--jr-btn-stop-hover); }
+.jr-btn-reset { background: var(--jr-btn-reset); }
+.jr-btn-reset:hover { background: var(--jr-btn-reset-hover); }
+
+/* Editor */
+.jr-editor {
+  border-bottom: 1px solid var(--jr-border);
+}
+
+.jr-editor .cm-editor {
+  max-height: 600px;
+  overflow: auto;
+}
+
+.jr-editor .cm-editor.cm-focused {
+  outline: none;
+}
+
+/* Console */
+.jr-console {
+  background: var(--jr-console-bg);
+  color: var(--jr-console-text);
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: var(--jr-font-mono);
+  font-size: 13px;
+  position: relative;
+}
+
+.jr-console-output {
+  margin: 0;
+  padding: 10px 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: inherit;
+  font-size: inherit;
+  min-height: 1.5em;
+}
+
+.jr-error {
+  color: var(--jr-console-error);
+}
+
+/* Console input */
+.jr-console-input {
+  display: flex;
+  gap: 6px;
+  padding: 4px 12px 8px;
+  align-items: center;
+  border-top: 1px solid #333;
+}
+
+.jr-console-input-field {
+  flex: 1;
+  background: var(--jr-input-bg);
+  color: var(--jr-console-text);
+  border: 1px solid var(--jr-input-border);
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-family: var(--jr-font-mono);
+  font-size: 13px;
+  outline: none;
+}
+
+.jr-console-input-field:focus {
+  border-color: #007acc;
+}
+
+.jr-console-submit {
+  background: #007acc;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.jr-console-submit:hover {
+  background: #005a9e;
+}

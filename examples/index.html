@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java Runner Demo</title>
+  <link rel="stylesheet" href="../dist/javarunner.css">
+  <style>
+    body {
+      max-width: 800px;
+      margin: 2em auto;
+      padding: 0 1em;
+      font-family: system-ui, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1 { color: #1a73e8; }
+    h2 { margin-top: 2em; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Java Runner — In-Browser Java Interpreter</h1>
+  <p>Each code block below is an interactive editor. Click <strong>▶ Run</strong> to execute.</p>
+
+  <h2>Hello World</h2>
+  <div class="java">
+public class Hello {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+  </div>
+
+  <h2>Scanner Input</h2>
+  <div class="java">
+import java.util.Scanner;
+
+public class Greeting {
+    public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
+        System.out.print("What is your name? ");
+        String name = scan.nextLine();
+        System.out.println("Hello, " + name + "!");
+        scan.close();
+    }
+}
+  </div>
+
+  <h2>Temperature Converter</h2>
+  <div class="java">
+import java.util.Scanner;
+
+public class Convert {
+    public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Enter temperature in Fahrenheit: ");
+        double fahrenheit = scan.nextDouble();
+        double celsius = (fahrenheit - 32) * 5.0 / 9.0;
+        System.out.printf("%.1f°F = %.1f°C%n", fahrenheit, celsius);
+        scan.close();
+    }
+}
+  </div>
+
+  <h2>Loops &amp; Arrays</h2>
+  <div class="java">
+public class FizzBuzz {
+    public static void main(String[] args) {
+        for (int i = 1; i <= 30; i++) {
+            if (i % 15 == 0) {
+                System.out.println("FizzBuzz");
+            } else if (i % 3 == 0) {
+                System.out.println("Fizz");
+            } else if (i % 5 == 0) {
+                System.out.println("Buzz");
+            } else {
+                System.out.println(i);
+            }
+        }
+    }
+}
+  </div>
+
+  <h2>ArrayList &amp; Collections</h2>
+  <div class="java">
+import java.util.ArrayList;
+import java.util.Collections;
+
+public class ListDemo {
+    public static void main(String[] args) {
+        ArrayList&lt;String&gt; names = new ArrayList&lt;&gt;();
+        names.add("Charlie");
+        names.add("Alice");
+        names.add("Bob");
+
+        System.out.println("Before sort: " + names);
+        Collections.sort(names);
+        System.out.println("After sort:  " + names);
+        System.out.println("Size: " + names.size());
+        System.out.println("Contains Alice? " + names.contains("Alice"));
+    }
+}
+  </div>
+
+  <h2>Inheritance &amp; Polymorphism</h2>
+  <div class="java">
+public class Animals {
+    static class Animal {
+        String name;
+        Animal(String name) {
+            this.name = name;
+        }
+        String speak() {
+            return "...";
+        }
+        public String toString() {
+            return name + " says " + speak();
+        }
+    }
+
+    static class Dog extends Animal {
+        Dog(String name) { super(name); }
+        String speak() { return "Woof!"; }
+    }
+
+    static class Cat extends Animal {
+        Cat(String name) { super(name); }
+        String speak() { return "Meow!"; }
+    }
+
+    public static void main(String[] args) {
+        Animal[] animals = { new Dog("Rex"), new Cat("Whiskers"), new Dog("Buddy") };
+        for (Animal a : animals) {
+            System.out.println(a);
+        }
+    }
+}
+  </div>
+
+  <h2>Exception Handling</h2>
+  <div class="java">
+public class ExceptionDemo {
+    public static void main(String[] args) {
+        try {
+            int[] arr = {1, 2, 3};
+            System.out.println("Element at 5: " + arr[5]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+
+        try {
+            String s = null;
+            System.out.println(s.length());
+        } catch (NullPointerException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+
+        System.out.println("Program continues after exceptions.");
+    }
+}
+  </div>
+
+  <h2>Methods &amp; Recursion</h2>
+  <div class="java">
+public class Fibonacci {
+    public static int fib(int n) {
+        if (n <= 1) return n;
+        return fib(n - 1) + fib(n - 2);
+    }
+
+    public static void main(String[] args) {
+        for (int i = 0; i <= 15; i++) {
+            System.out.print(fib(i) + " ");
+        }
+        System.out.println();
+    }
+}
+  </div>
+
+  <script src="../dist/javarunner.js"></script>
+</body>
+</html>
