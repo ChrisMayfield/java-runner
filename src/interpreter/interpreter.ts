@@ -910,6 +910,15 @@ export class Interpreter {
       }
       if (methodName === 'getClass') return makeString(objClassName);
 
+      // getMessage() for exception objects (Throwable.getMessage())
+      if (methodName === 'getMessage') {
+        if (obj.value && typeof obj.value === 'object' && 'fields' in obj.value) {
+          const msg = (obj.value as JavaObject).fields.get('message');
+          if (msg) return msg;
+        }
+        return makeString('');
+      }
+
       throw new RuntimeError(`No method '${methodName}' in class '${objClassName}'`, expr.pos.line);
     }
 
@@ -921,11 +930,6 @@ export class Interpreter {
       if (info) {
         const method = this.findMethod(info, methodName, args, true);
         if (method) return this.callUserMethod(method, null, currentClassName, args, env, expr.pos.line);
-        // Also check non-static methods
-        const instanceMethod = this.findMethod(info, methodName, args, false);
-        if (instanceMethod && env.has('this')) {
-          return this.callUserMethod(instanceMethod, env.get('this'), currentClassName, args, env, expr.pos.line);
-        }
       }
     }
     for (const cls of this.registry['classes'].values()) {
@@ -935,7 +939,8 @@ export class Interpreter {
       }
     }
 
-    // 6. Try as instance method on current 'this'
+    // 6. Try as instance method on current 'this' — uses virtual dispatch
+    //    so overridden methods (e.g. speak()) resolve to the runtime type
     if (env.has('this')) {
       const thisObj = env.get('this');
       const objClassName = this.getClassName(thisObj);

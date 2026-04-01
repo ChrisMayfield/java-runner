@@ -1031,6 +1031,33 @@ describe('Inheritance', () => {
       }
     `)).toBe('Hello from Parent\nHello from Child');
   });
+
+  it('virtual dispatch in inherited method', async () => {
+    expect(await run(`
+      public class Test {
+        static class Animal {
+          String name;
+          Animal(String name) { this.name = name; }
+          String speak() { return "..."; }
+          public String toString() { return name + " says " + speak(); }
+        }
+        static class Dog extends Animal {
+          Dog(String name) { super(name); }
+          String speak() { return "Woof!"; }
+        }
+        static class Cat extends Animal {
+          Cat(String name) { super(name); }
+          String speak() { return "Meow!"; }
+        }
+        public static void main(String[] args) {
+          Animal[] animals = { new Dog("Rex"), new Cat("Whiskers"), new Dog("Buddy") };
+          for (Animal a : animals) {
+            System.out.println(a);
+          }
+        }
+      }
+    `)).toBe('Rex says Woof!\nWhiskers says Meow!\nBuddy says Woof!');
+  });
 });
 
 describe('Exception Handling', () => {
@@ -1142,6 +1169,27 @@ describe('Exception Handling', () => {
         }
       }
     `)).toBe('index out of bounds');
+  });
+
+  it('exception getMessage', async () => {
+    expect(await run(`
+      public class Test {
+        public static void main(String[] args) {
+          try {
+            int[] arr = {1, 2, 3};
+            int x = arr[5];
+          } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println(e.getMessage());
+          }
+          try {
+            String s = null;
+            s.length();
+          } catch (NullPointerException e) {
+            System.out.println(e.getMessage());
+          }
+        }
+      }
+    `)).toBe('Index 5 out of bounds for length 3\nCannot call method \'length\' on null');
   });
 });
 
