@@ -8,7 +8,7 @@ import {
 } from '../interpreter/types';
 import { RuntimeError, makeJavaException } from '../interpreter/errors';
 
-/** In-memory file system used by the Java runner */
+/** In-memory file system used by java-runner */
 const virtualFS = new Map<string, string>();
 
 export function getVirtualFS(): Map<string, string> {

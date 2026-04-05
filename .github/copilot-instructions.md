@@ -1,4 +1,4 @@
-# Java Runner — Copilot Instructions
+# java-runner — Copilot Instructions
 
 ## Project Overview
 

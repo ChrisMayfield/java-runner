@@ -1,4 +1,4 @@
-# Java Runner
+# java-runner
 
 A client-side, in-browser Java editor and interpreter for CS1 education. Drop a `<script>` tag into any HTML page, and `<div class="java">` elements become interactive editors with a Run button and console output.
 
