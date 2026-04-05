@@ -1,6 +1,7 @@
 # java-runner
 
-A client-side, in-browser Java editor and interpreter for CS1 education. Drop a `<script>` tag into any HTML page, and `<div class="java">` elements become interactive editors with a Run button and console output.
+A client-side, in-browser Java editor and interpreter for CS1 education.
+Drop a `<script>` tag into any HTML page, and `<script type="text/x-java">` elements become interactive editors with a Run button and console output.
 
 **No server required** — parsing, interpretation, and I/O all happen in the browser.
 
@@ -13,16 +14,17 @@ Include the built files in your HTML:
 <script src="javarunner.js"></script>
 ```
 
-Then write Java code inside any element with class `java`:
+Then write Java code inside `<script type="text/x-java">` elements:
 
 ```html
-<div class="java">
+<script type="text/x-java">
 System.out.println("Hello, World!");
 int x = 5;
 System.out.println("x is " + x);
-</div>
+</script>
 ```
 
+The `<script>` tag with a non-JavaScript type is treated as raw text by the browser, so `<`, `>`, and `&` in Java code don't need escaping.
 On page load, each element is replaced by an interactive CodeMirror 6 editor with Run, Stop, and Reset buttons and a console panel.
 
 ### Snippet Mode

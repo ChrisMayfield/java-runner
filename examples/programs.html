@@ -11,16 +11,16 @@
   <h1>java-runner Programs</h1>
 
   <h2>1. Hello World</h2>
-  <div class="java">
+  <script type="text/x-java">
 public class Hello {
     public static void main(String[] args) {
         System.out.println("Hello, World!");
     }
 }
-  </div>
+  </script>
 
   <h2>2. Scanner Input</h2>
-  <div class="java">
+  <script type="text/x-java">
 import java.util.Scanner;
 
 public class Greeting {
@@ -31,10 +31,10 @@ public class Greeting {
         System.out.println("Hello, " + name + "!");
     }
 }
-  </div>
+  </script>
 
   <h2>3. Temperature Converter</h2>
-  <div class="java">
+  <script type="text/x-java">
 import java.util.Scanner;
 
 public class Convert {
@@ -46,10 +46,10 @@ public class Convert {
         System.out.printf("%.1f°F = %.1f°C%n", fahrenheit, celsius);
     }
 }
-  </div>
+  </script>
 
   <h2>4. Loops &amp; Arrays</h2>
-  <div class="java">
+  <script type="text/x-java">
 public class FizzBuzz {
     public static void main(String[] args) {
         for (int i = 1; i <= 30; i++) {
@@ -65,16 +65,16 @@ public class FizzBuzz {
         }
     }
 }
-  </div>
+  </script>
 
   <h2>5. ArrayList &amp; Collections</h2>
-  <div class="java">
+  <script type="text/x-java">
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class ListDemo {
     public static void main(String[] args) {
-        ArrayList&lt;String&gt; names = new ArrayList&lt;&gt;();
+        ArrayList<String> names = new ArrayList<>();
         names.add("Charlie");
         names.add("Alice");
         names.add("Bob");
@@ -86,10 +86,10 @@ public class ListDemo {
         System.out.println("Contains Alice? " + names.contains("Alice"));
     }
 }
-  </div>
+  </script>
 
   <h2>6. Inheritance &amp; Polymorphism</h2>
-  <div class="java">
+  <script type="text/x-java">
 public class Animals {
     static class Animal {
         String name;
@@ -121,10 +121,10 @@ public class Animals {
         }
     }
 }
-  </div>
+  </script>
 
   <h2>7. Exception Handling</h2>
-  <div class="java">
+  <script type="text/x-java">
 public class ExceptionDemo {
     public static void main(String[] args) {
         try {
@@ -144,10 +144,10 @@ public class ExceptionDemo {
         System.out.println("Program continues after exceptions.");
     }
 }
-  </div>
+  </script>
 
   <h2>8. Methods &amp; Recursion</h2>
-  <div class="java">
+  <script type="text/x-java">
 public class Fibonacci {
     public static int fib(int n) {
         if (n <= 1) return n;
@@ -161,7 +161,7 @@ public class Fibonacci {
         System.out.println();
     }
 }
-  </div>
+  </script>
 
   <script src="../dist/javarunner.js"></script>
 </body>

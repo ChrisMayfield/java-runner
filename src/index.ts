@@ -1,11 +1,11 @@
-// Entry point: auto-init <div class="java"> elements into widgets
+// Entry point: auto-init <script type="text/x-java"> elements into widgets
 
 import { Widget } from './ui/widget';
 
 const widgets: Widget[] = [];
 
 function initAll(): void {
-  const elements = document.querySelectorAll('div.java, pre.java, code.java');
+  const elements = document.querySelectorAll('script[type="text/x-java"]');
 
   elements.forEach((el) => {
     // Extract the code from the element's text content
@@ -30,7 +30,7 @@ if (document.readyState === 'loading') {
 export { Widget };
 export function init(selector?: string): Widget[] {
   const created: Widget[] = [];
-  const elements = document.querySelectorAll(selector || 'div.java, pre.java, code.java');
+  const elements = document.querySelectorAll(selector || 'script[type="text/x-java"]');
 
   elements.forEach((el) => {
     const code = (el as HTMLElement).textContent || '';

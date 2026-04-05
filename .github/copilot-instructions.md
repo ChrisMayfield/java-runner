@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Client-side Java interpreter for CS1 education, bundled as a single IIFE script + CSS. Replaces `<div class="java">` elements with interactive CodeMirror 6 editors that parse and run Java code entirely in the browser.
+Client-side Java interpreter for CS1 education, bundled as a single IIFE script + CSS. Replaces `<script type="text/x-java">` elements with interactive CodeMirror 6 editors that parse and run Java code entirely in the browser.
 
 ## Build and Test
 
@@ -21,7 +21,7 @@ TypeScript strict mode. Check types with `npx tsc --noEmit`.
 - **Interpreter** (`src/interpreter/`): Async tree-walking interpreter. `Environment` is a parent-chain scope. `ClassRegistry` stores class metadata and built-in method bindings. Step limit of 10M with periodic `setTimeout` yield every 10K steps.
 - **Runtime** (`src/runtime/`): Each file registers built-in classes/methods on the ClassRegistry (System, Scanner, Math, ArrayList, HashMap, etc.). Follow existing patterns when adding new classes.
 - **UI** (`src/ui/`): ConsolePanel (output + input), Editor (CodeMirror 6 wrapper), Widget (orchestrates toolbar + editor + console).
-- **Entry** (`src/index.ts`): Auto-init on DOMContentLoaded, exports `JavaRunner.Widget` and `JavaRunner.init()`.
+- **Entry** (`src/index.ts`): Auto-init `<script type="text/x-java">` elements on DOMContentLoaded, exports `JavaRunner.Widget` and `JavaRunner.init()`.
 
 ## Snippet Mode
 
