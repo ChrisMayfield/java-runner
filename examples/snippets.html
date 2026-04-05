@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java Runner Demo Snippets</title>
+  <link rel="stylesheet" href="../dist/javarunner.css">
+  <style>
+    body {
+      max-width: 800px;
+      margin: 2em auto;
+      padding: 0 1em;
+      font-family: system-ui, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1 { color: #1a73e8; }
+    h2 { margin-top: 2em; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Java Runner Demo Snippets</h1>
+  <p>These examples use <strong>snippet mode</strong>: no class or main method needed.</p>
+
+  <h2>1. Hello World</h2>
+  <div class="java">
+System.out.println("Hello, World!");
+System.out.println("Welcome to Java!");
+  </div>
+
+  <h2>2. Variables &amp; Input</h2>
+  <div class="java">
+Scanner scan = new Scanner(System.in);
+System.out.print("Enter your name: ");
+String name = scan.nextLine();
+System.out.print("Enter your age: ");
+int age = scan.nextInt();
+System.out.println("Hello, " + name + "!");
+System.out.println("Next year you will be " + (age + 1) + ".");
+scan.close();
+  </div>
+
+  <h2>3. Conditionals</h2>
+  <div class="java">
+Scanner scan = new Scanner(System.in);
+System.out.print("Enter a test score (0-100): ");
+int score = scan.nextInt();
+
+String grade;
+if (score >= 90) {
+    grade = "A";
+} else if (score >= 80) {
+    grade = "B";
+} else if (score >= 70) {
+    grade = "C";
+} else if (score >= 60) {
+    grade = "D";
+} else {
+    grade = "F";
+}
+System.out.println("Score " + score + " is a " + grade);
+scan.close();
+  </div>
+
+  <h2>4. Loops</h2>
+  <div class="java">
+// Print a multiplication table
+int size = 5;
+for (int i = 1; i &lt;= size; i++) {
+    for (int j = 1; j &lt;= size; j++) {
+        System.out.printf("%4d", i * j);
+    }
+    System.out.println();
+}
+  </div>
+
+  <h2>5. Arrays</h2>
+  <div class="java">
+int[] numbers = {64, 34, 25, 12, 22, 11, 90};
+System.out.println("Before: " + Arrays.toString(numbers));
+
+// Selection sort
+for (int i = 0; i &lt; numbers.length - 1; i++) {
+    int minIdx = i;
+    for (int j = i + 1; j &lt; numbers.length; j++) {
+        if (numbers[j] &lt; numbers[minIdx]) {
+            minIdx = j;
+        }
+    }
+    int temp = numbers[minIdx];
+    numbers[minIdx] = numbers[i];
+    numbers[i] = temp;
+}
+System.out.println("After:  " + Arrays.toString(numbers));
+  </div>
+
+  <h2>6. 2D Arrays</h2>
+  <div class="java">
+// Create and display a 2D array (matrix)
+int rows = 3;
+int cols = 4;
+int[][] matrix = new int[rows][cols];
+
+// Fill with values
+int value = 1;
+for (int i = 0; i &lt; rows; i++) {
+    for (int j = 0; j &lt; cols; j++) {
+        matrix[i][j] = value++;
+    }
+}
+
+// Display the matrix
+System.out.println("Matrix:");
+for (int i = 0; i &lt; rows; i++) {
+    for (int j = 0; j &lt; cols; j++) {
+        System.out.printf("%4d", matrix[i][j]);
+    }
+    System.out.println();
+}
+
+// Compute row sums
+System.out.println("\nRow sums:");
+for (int i = 0; i &lt; rows; i++) {
+    int sum = 0;
+    for (int j = 0; j &lt; cols; j++) {
+        sum += matrix[i][j];
+    }
+    System.out.println("  Row " + i + ": " + sum);
+}
+  </div>
+
+  <h2>7. Methods &amp; Recursion</h2>
+  <div class="java">
+public static boolean isPrime(int n) {
+    if (n &lt; 2) return false;
+    for (int i = 2; i &lt;= Math.sqrt(n); i++) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}
+
+public static int factorial(int n) {
+    if (n &lt;= 1) return 1;
+    return n * factorial(n - 1);
+}
+
+public static void main(String[] args) {
+    // Find primes up to 50
+    System.out.print("Primes: ");
+    for (int i = 2; i &lt;= 50; i++) {
+        if (isPrime(i)) {
+            System.out.print(i + " ");
+        }
+    }
+    System.out.println();
+
+    // Print factorials
+    for (int i = 1; i &lt;= 10; i++) {
+        System.out.println(i + "! = " + factorial(i));
+    }
+}
+  </div>
+
+  <h2>8. ArrayList &amp; HashMap</h2>
+  <div class="java">
+// Count word frequencies
+String text = "the cat sat on the mat the cat";
+String[] words = text.split(" ");
+
+HashMap&lt;String, Integer&gt; freq = new HashMap&lt;&gt;();
+for (String word : words) {
+    if (freq.containsKey(word)) {
+        freq.put(word, freq.get(word) + 1);
+    } else {
+        freq.put(word, 1);
+    }
+}
+
+// Sort keys and display
+ArrayList&lt;String&gt; keys = new ArrayList&lt;&gt;(freq.keySet());
+Collections.sort(keys);
+for (String key : keys) {
+    System.out.println(key + ": " + freq.get(key));
+}
+  </div>
+
+  <script src="../dist/javarunner.js"></script>
+</body>
+</html>

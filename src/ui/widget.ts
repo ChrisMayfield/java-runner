@@ -2,7 +2,7 @@
 
 import { Editor } from './editor';
 import { ConsolePanel } from './console';
-import { parse } from '../parser/index';
+import { parseSnippet } from '../parser/snippet';
 import { Interpreter, InterpreterIO } from '../interpreter/interpreter';
 import { registerSystem } from '../runtime/system';
 import { registerScanner } from '../runtime/scanner';
@@ -80,8 +80,8 @@ export class Widget {
     this.console.show();
 
     try {
-      // Parse
-      const ast = parse(source);
+      // Parse (wraps bare snippets in class + main automatically)
+      const { ast } = parseSnippet(source);
 
       // Create interpreter with IO wired to console
       const io: InterpreterIO = {

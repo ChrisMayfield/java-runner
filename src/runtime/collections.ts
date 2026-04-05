@@ -50,6 +50,8 @@ function registerArrayList(interp: Interpreter): void {
       const other = (args[0].value as JavaObject).nativeObj;
       if (Array.isArray(other)) {
         list.push(...other);
+      } else if (other instanceof Set) {
+        list.push(...other);
       }
     }
     return makeObject('ArrayList', new Map(), list);

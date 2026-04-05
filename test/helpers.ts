@@ -1,4 +1,4 @@
-import { parse } from '../src/parser/index';
+import { parseSnippet } from '../src/parser/snippet';
 import { Interpreter, InterpreterIO } from '../src/interpreter/interpreter';
 import { registerSystem } from '../src/runtime/system';
 import { registerScanner } from '../src/runtime/scanner';
@@ -10,7 +10,7 @@ import { registerRandom } from '../src/runtime/random';
 import { registerFileIO } from '../src/runtime/fileio';
 
 export async function runJava(source: string, inputs: string[] = []): Promise<string> {
-  const ast = parse(source);
+  const { ast } = parseSnippet(source);
   let output = '';
   let inputIdx = 0;
 
