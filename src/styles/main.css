@@ -94,6 +94,11 @@
   color: var(--jr-console-error);
 }
 
+.jr-input-echo,
+.jr-console-input-field {
+  color: #56d8f5;
+}
+
 /* Console input */
 .jr-console-input {
   display: flex;
@@ -106,7 +111,6 @@
 .jr-console-input-field {
   flex: 1;
   background: var(--jr-input-bg);
-  color: var(--jr-console-text);
   border: 1px solid var(--jr-input-border);
   border-radius: 3px;
   padding: 4px 8px;

@@ -58,6 +58,7 @@ export class Widget {
 
     // Console
     this.console = new ConsolePanel();
+    this.console.hide();
 
     // Assemble
     this.element.appendChild(this.toolbar);
@@ -78,6 +79,9 @@ export class Widget {
     this.stopBtn.style.display = '';
     this.console.clear();
     this.console.show();
+
+    // Brief delay so user notices the console cleared/appeared
+    await new Promise(r => setTimeout(r, 200));
 
     try {
       // Parse (wraps bare snippets in class + main automatically)
@@ -105,8 +109,6 @@ export class Widget {
 
       // Run
       await interp.run(ast);
-
-      this.console.println('\n--- Program finished ---');
     } catch (e: unknown) {
       if (e instanceof ExecutionCancelled) {
         this.console.appendError('\n--- Execution cancelled ---\n');
@@ -144,6 +146,8 @@ export class Widget {
       this.currentInterpreter.cancelled = true;
       this.console.abortInput();
     }
+    this.runBtn.style.display = '';
+    this.stopBtn.style.display = 'none';
   }
 
   reset(): void {
@@ -151,6 +155,8 @@ export class Widget {
     this.editor.setCode(this.originalCode);
     this.console.clear();
     this.console.hide();
+    this.runBtn.style.display = '';
+    this.stopBtn.style.display = 'none';
   }
 
   destroy(): void {

@@ -49,13 +49,11 @@ export class ConsolePanel {
   }
 
   print(text: string): void {
-    this.outputEl.textContent += text;
-    this.scrollToBottom();
+    this.outputEl.appendChild(document.createTextNode(text));
   }
 
   println(text: string): void {
-    this.outputEl.textContent += text + '\n';
-    this.scrollToBottom();
+    this.outputEl.appendChild(document.createTextNode(text + '\n'));
   }
 
   appendError(text: string): void {
@@ -63,7 +61,6 @@ export class ConsolePanel {
     span.className = 'jr-error';
     span.textContent = text;
     this.outputEl.appendChild(span);
-    this.scrollToBottom();
   }
 
   requestInput(prompt?: string): Promise<string> {
@@ -82,7 +79,7 @@ export class ConsolePanel {
   private submitInput(): void {
     if (!this.pendingResolve) return;
     const value = this.inputField.value;
-    this.println(value); // echo input
+    this.printInput(value); // echo input in cyan
     this.hideInput();
     const resolve = this.pendingResolve;
     this.pendingResolve = null;
@@ -92,12 +89,21 @@ export class ConsolePanel {
   abortInput(): void {
     if (this.pendingResolve) {
       this.hideInput();
+      const resolve = this.pendingResolve;
       this.pendingResolve = null;
+      resolve('');
     }
   }
 
   private hideInput(): void {
     this.inputLine.style.display = 'none';
+  }
+
+  printInput(text: string): void {
+    const span = document.createElement('span');
+    span.className = 'jr-input-echo';
+    span.textContent = text + '\n';
+    this.outputEl.appendChild(span);
   }
 
   private scrollToBottom(): void {

@@ -4,6 +4,8 @@ import { EditorView, basicSetup } from 'codemirror';
 import { java } from '@codemirror/lang-java';
 import { EditorState } from '@codemirror/state';
 import { keymap } from '@codemirror/view';
+import { indentWithTab } from '@codemirror/commands';
+import { indentUnit } from "@codemirror/language"
 
 export class Editor {
   readonly element: HTMLElement;
@@ -18,6 +20,8 @@ export class Editor {
       extensions: [
         basicSetup,
         java(),
+        keymap.of([indentWithTab]),
+        indentUnit.of("    "),
         EditorView.lineWrapping,
         EditorView.theme({
           '&': { fontSize: '14px' },

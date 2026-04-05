@@ -62,7 +62,7 @@ Output goes to `dist/`:
 
 | File | Description |
 |------|-------------|
-| `javarunner.js` | IIFE bundle (~767 KB) |
+| `javarunner.js` | IIFE bundle (~789 KB) |
 | `javarunner.css` | Styles (~2.7 KB) |
 | `javarunner.js.map` | Source map |
 
