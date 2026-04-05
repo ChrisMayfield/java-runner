@@ -22,7 +22,6 @@ export class Editor {
         java(),
         keymap.of([indentWithTab]),
         indentUnit.of("    "),
-        EditorView.lineWrapping,
         EditorView.theme({
           '&': { fontSize: '14px' },
           '.cm-content': { fontFamily: '"Fira Code", "Consolas", "Monaco", monospace' },
@@ -35,6 +34,11 @@ export class Editor {
       state,
       parent: this.element,
     });
+  }
+
+  /** The inner CodeMirror element (resizes with content, unaffected by wrapper minHeight). */
+  get contentElement(): HTMLElement {
+    return this.view.dom;
   }
 
   getCode(): string {

@@ -34,6 +34,7 @@
   gap: 6px;
   padding: 6px 10px;
   background: var(--jr-toolbar-bg);
+  border-top: 1px solid var(--jr-border);
   border-bottom: 1px solid var(--jr-border);
 }
 
@@ -54,6 +55,73 @@
 .jr-btn-stop:hover { background: var(--jr-btn-stop-hover); }
 .jr-btn-reset { background: var(--jr-btn-reset); }
 .jr-btn-reset:hover { background: var(--jr-btn-reset-hover); }
+
+/* Tab bar */
+.jr-tab-bar {
+  display: flex;
+  background: var(--jr-toolbar-bg);
+  border-bottom: 1px solid var(--jr-border);
+  overflow-x: auto;
+  font-size: 13px;
+}
+
+.jr-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-right: 1px solid var(--jr-border);
+  white-space: nowrap;
+  user-select: none;
+  color: #555;
+  transition: background 0.15s;
+}
+
+.jr-tab:hover {
+  background: #e8e8e8;
+}
+
+.jr-tab-active {
+  background: var(--jr-bg);
+  color: #000;
+  font-weight: 600;
+  border-bottom: 2px solid #007acc;
+}
+
+.jr-tab-close {
+  font-size: 15px;
+  line-height: 1;
+  padding: 0 2px;
+  border-radius: 3px;
+  color: #999;
+}
+
+.jr-tab-close:hover {
+  background: #ccc;
+  color: #333;
+}
+
+.jr-tab-add {
+  font-size: 16px;
+  font-weight: 600;
+  color: #888;
+  padding: 6px 14px;
+  border-right: none;
+}
+
+.jr-tab-add:hover {
+  background: #e8e8e8;
+  color: #333;
+}
+
+.jr-tab-dragging {
+  opacity: 0.4;
+}
+
+.jr-tab-dragover {
+  border-left: 2px solid #007acc;
+}
 
 /* Editor */
 .jr-editor {
