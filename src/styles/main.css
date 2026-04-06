@@ -204,3 +204,61 @@
 .jr-console-submit:hover {
   background: #005a9e;
 }
+
+/* REPL */
+.jr-repl {
+  background: var(--jr-console-bg);
+  color: var(--jr-console-text);
+  font-family: var(--jr-font-mono);
+  font-size: 13px;
+  border: 1px solid var(--jr-border);
+  border-radius: var(--jr-radius);
+  margin: 1em 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.jr-repl-output {
+  margin: 0;
+  padding: 10px 12px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: inherit;
+  font-size: inherit;
+  min-height: 0;
+}
+
+.jr-repl-input-line {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px 8px;
+}
+
+.jr-repl-prompt {
+  color: #569cd6;
+  white-space: pre;
+  user-select: none;
+}
+
+.jr-repl-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--jr-console-text);
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+  padding: 0;
+}
+
+.jr-repl-echo {
+  color: #569cd6;
+}
+
+.jr-repl-result {
+  color: #6a9955;
+}
+
+.jr-repl-error {
+  color: var(--jr-console-error);
+}

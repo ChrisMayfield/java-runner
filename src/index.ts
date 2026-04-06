@@ -1,8 +1,10 @@
-// Entry point: auto-init <script type="text/x-java"> elements into widgets
+// Entry point: auto-init <script type="text/x-java"> and <script type="text/x-java-repl"> elements
 
 import { Widget } from './ui/widget';
+import { ReplWidget } from './ui/repl';
 
 const widgets: Widget[] = [];
+const repls: ReplWidget[] = [];
 
 function initAll(): void {
   const elements = document.querySelectorAll('script[type="text/x-java"]');
@@ -17,6 +19,17 @@ function initAll(): void {
     el.replaceWith(widget.element);
     widgets.push(widget);
   });
+
+  const replElements = document.querySelectorAll('script[type="text/x-java-repl"]');
+
+  replElements.forEach((el) => {
+    const code = (el as HTMLElement).textContent || '';
+
+    // Create REPL widget (may have empty code)
+    const repl = new ReplWidget(code);
+    el.replaceWith(repl.element);
+    repls.push(repl);
+  });
 }
 
 // Auto-init on DOMContentLoaded
@@ -28,6 +41,7 @@ if (document.readyState === 'loading') {
 
 // Expose API globally for manual use
 export { Widget };
+export { ReplWidget };
 export function init(selector?: string): Widget[] {
   const created: Widget[] = [];
   const elements = document.querySelectorAll(selector || 'script[type="text/x-java"]');

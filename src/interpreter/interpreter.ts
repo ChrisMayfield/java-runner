@@ -1467,6 +1467,35 @@ export class Interpreter {
   getRegistry(): ClassRegistry { return this.registry; }
   getGlobalEnv(): Environment { return this.globalEnv; }
 
+  // ============================================================
+  // Public API for REPL
+  // ============================================================
+
+  async execReplStatement(stmt: Statement, env: Environment): Promise<void> {
+    this.steps = 0;
+    this.callDepth = 0;
+    this.cancelled = false;
+    this.stackTrace = [];
+    await this.execStmt(stmt, env);
+  }
+
+  async evalReplExpression(expr: Expression, env: Environment): Promise<JavaValue> {
+    this.steps = 0;
+    this.callDepth = 0;
+    this.cancelled = false;
+    this.stackTrace = [];
+    return this.evalExpr(expr, env);
+  }
+
+  registerUserClass(cls: ClassDeclaration): void {
+    this.registerClass(cls);
+  }
+
+  async initUserClassStaticFields(cls: ClassDeclaration): Promise<void> {
+    const info = this.registry.get(cls.name);
+    if (info) await this.initializeStaticFields(info);
+  }
+
   /** Async toString: calls user-defined or built-in toString() if available, else falls back to toJavaString */
   async valueToString(val: JavaValue): Promise<string> {
     if (val.value && typeof val.value === 'object' && 'className' in val.value && 'fields' in val.value) {

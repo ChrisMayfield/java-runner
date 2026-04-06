@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>java-runner REPL</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../dist/javarunner.css">
+</head>
+<body>
+  <h1>java-runner REPL</h1>
+
+  <h2>1. Empty REPL</h2>
+  <p>Try typing Java expressions and statements. Use &uarr; and &darr; arrows to recall previous input.</p>
+  <script type="text/x-java-repl">
+  </script>
+
+  <h2>2. Variables</h2>
+  <script type="text/x-java-repl">
+int x = 5;
+int y = 10;
+String name = "Alice";
+  </script>
+
+  <h2>3. Collections</h2>
+  <script type="text/x-java-repl">
+ArrayList<String> names = new ArrayList<>();
+names.add("Alice");
+names.add("Bob");
+names.add("Charlie");
+  </script>
+
+  <h2>4. Math Exploration</h2>
+  <script type="text/x-java-repl">
+double pi = Math.PI;
+double r = 5.0;
+double area = pi * r * r;
+double circumference = 2 * pi * r;
+  </script>
+
+  <h2>5. Loops</h2>
+  <script type="text/x-java-repl">
+int sum = 0;
+for (int i = 1; i <= 10; i++) {
+    sum += i;
+}
+System.out.println("Sum of 1..10 = " + sum);
+  </script>
+
+  <script src="../dist/javarunner.js"></script>
+</body>
+</html>
