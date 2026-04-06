@@ -2,6 +2,7 @@
 
 A client-side, in-browser Java editor and interpreter for CS1 education.
 Drop a `<script>` tag into any HTML page, and `<script type="text/x-java">` elements become interactive editors with a Run button and console output.
+Use `<script type="text/x-java-repl">` for an interactive Java shell.
 
 **No server required** — parsing, interpretation, and I/O all happen in the browser.
 
@@ -27,6 +28,22 @@ System.out.println("x is " + x);
 The `<script>` tag with a non-JavaScript type is treated as raw text by the browser, so `<`, `>`, and `&` in Java code don't need escaping.
 On page load, each element is replaced by an interactive CodeMirror 6 editor with Run, Stop, and Reset buttons and a console panel.
 
+### REPL Mode
+
+For an interactive Java shell, use `<script type="text/x-java-repl">`:
+
+```html
+<script type="text/x-java-repl">
+int x = 5;
+int y = 10;
+String name = "Alice";
+</script>
+```
+
+Code inside the element is executed line-by-line to initialize the session.
+Users can then type expressions, statements, or class declarations.
+Variables persist across inputs, results are displayed automatically, and up/down arrows recall command history.
+
 ### Snippet Mode
 
 Code doesn't need a class or `main` method — bare statements are automatically wrapped. Three levels of wrapping are detected:
@@ -39,6 +56,7 @@ Supported library classes (`Scanner`, `Random`, `ArrayList`, `HashMap`, etc.) ar
 
 ## Features
 
+- **Interactive REPL** — `<script type="text/x-java-repl">` creates a Java shell with persistent state, command history, and multi-line input
 - **CodeMirror 6 editor** with Java syntax highlighting
 - **Interactive console** — `Scanner(System.in)` prompts the user for input
 - **CS1-level Java support:**
@@ -64,15 +82,15 @@ Output goes to `dist/`:
 
 | File | Description |
 |------|-------------|
-| `javarunner.js` | IIFE bundle (~789 KB) |
-| `javarunner.css` | Styles (~2.7 KB) |
+| `javarunner.js` | IIFE bundle (~783 KB) |
+| `javarunner.css` | Styles (~4.7 KB) |
 | `javarunner.js.map` | Source map |
 
 ### Other Commands
 
 ```bash
 npm run watch   # rebuild on file changes
-npm test        # run tests (194 vitest tests)
+npm test        # run tests (236 vitest tests)
 ```
 
 ## Demo
@@ -81,6 +99,7 @@ Open the following pages in a browser after building:
 
 - `examples/programs.html` includes **full programs** showing Hello World, Scanner input, loops, collections, inheritance, exceptions, and recursion.
 - `examples/snippets.html` demonstrates **snippet mode** (no class or main method needed) with eight examples that progress through common CS1 topics.
+- `examples/repl.html` demonstrates the **interactive REPL** with empty, variable, collection, math, and loop examples.
 
 ## Testing
 
@@ -89,7 +108,7 @@ npm test              # run all tests once
 npm run test:watch    # re-run on file changes
 ```
 
-194 tests across five suites cover the interpreter end-to-end:
+236 tests across six suites cover the interpreter end-to-end:
 
 | Suite | Tests | Coverage |
 |-------|-------|----------|
@@ -98,6 +117,7 @@ npm run test:watch    # re-run on file changes
 | `stdlib.test.ts` | 48 | Math, Random, Arrays, wrapper classes, Scanner, printf/format, file I/O |
 | `programs.test.ts` | 27 | Multi-class programs, recursion, polymorphism, interfaces |
 | `snippets.test.ts` | 17 | Snippet mode: bare statements, auto-imports, method-level wrapping |
+| `repl.test.ts` | 42 | REPL parser (expressions, statements, classes, imports) and execution (persistence, error recovery, collections) |
 
 ## Architecture
 
@@ -106,7 +126,8 @@ src/
 ├── parser/          # java-parser CST → custom AST
 │   ├── ast.ts       # AST node type definitions
 │   ├── converter.ts # CST-to-AST transformation
-│   ├── index.ts     # parse() entry point
+│   ├── index.ts     # parse() entry point, shared AUTO_IMPORTS
+│   ├── repl.ts      # REPL input parser (expression/statement/class detection)
 │   └── snippet.ts   # snippet wrapping (auto class/main/imports)
 ├── interpreter/     # async tree-walking interpreter
 │   ├── types.ts     # JavaValue, JavaObject, JavaArray
@@ -114,6 +135,7 @@ src/
 │   ├── errors.ts    # exceptions, control flow signals
 │   └── interpreter.ts # statement/expression evaluation
 ├── runtime/         # built-in Java standard library
+│   ├── index.ts     # registerAll() barrel
 │   ├── system.ts    # System.out, System.exit, String.format
 │   ├── scanner.ts   # Scanner with interactive input
 │   ├── math.ts      # Math class
@@ -125,6 +147,7 @@ src/
 ├── ui/              # browser UI components
 │   ├── console.ts   # output/input panel
 │   ├── editor.ts    # CodeMirror 6 wrapper
+│   ├── repl.ts      # interactive Java shell (REPL widget)
 │   └── widget.ts    # orchestrator (toolbar + editor + console)
 ├── styles/
 │   └── main.css     # CSS custom properties for theming
@@ -144,8 +167,12 @@ The interpreter is **async** — `Scanner` input pauses execution with a `Promis
 
 ```js
 // Auto-init happens on DOMContentLoaded, but you can also:
-const widget = new JavaRunner.Widget(containerElement, javaSourceCode);
+const widget = new JavaRunner.Widget(javaSourceCode);
 widget.run();
+
+// Create a REPL:
+const repl = new JavaRunner.ReplWidget(initialCode);
+document.body.appendChild(repl.element);
 
 // Or re-initialize manually:
 JavaRunner.init();
@@ -156,5 +183,5 @@ JavaRunner.init();
 - Subset of Java — not a full JVM. Targets CS1/CS2 curriculum features.
 - No generics type checking (collections work but types aren't enforced)
 - No threads, packages, or annotations
-- Bundle size is ~767 KB (mostly java-parser + CodeMirror)
+- Bundle size is ~783 KB (mostly java-parser + CodeMirror)
 - Numeric precision uses JavaScript `number` (64-bit float); `int` uses `| 0` truncation
