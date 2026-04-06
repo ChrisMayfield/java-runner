@@ -1,13 +1,6 @@
 import { parseSnippet } from '../src/parser/snippet';
 import { Interpreter, InterpreterIO } from '../src/interpreter/interpreter';
-import { registerSystem } from '../src/runtime/system';
-import { registerScanner } from '../src/runtime/scanner';
-import { registerMath } from '../src/runtime/math';
-import { registerCollections } from '../src/runtime/collections';
-import { registerWrappers } from '../src/runtime/wrappers';
-import { registerArrays } from '../src/runtime/arrays';
-import { registerRandom } from '../src/runtime/random';
-import { registerFileIO } from '../src/runtime/fileio';
+import { registerAll } from '../src/runtime/index';
 
 export async function runJava(source: string, inputs: string[] = []): Promise<string> {
   const { ast } = parseSnippet(source);
@@ -24,14 +17,7 @@ export async function runJava(source: string, inputs: string[] = []): Promise<st
   };
 
   const interp = new Interpreter(io);
-  registerSystem(interp, io);
-  registerScanner(interp, io);
-  registerMath(interp);
-  registerCollections(interp);
-  registerWrappers(interp);
-  registerArrays(interp);
-  registerRandom(interp);
-  registerFileIO(interp);
+  registerAll(interp, io);
 
   await interp.run(ast);
   return output;

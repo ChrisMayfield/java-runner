@@ -4,14 +4,7 @@ import { Editor } from './editor';
 import { ConsolePanel } from './console';
 import { parseSnippet } from '../parser/snippet';
 import { Interpreter, InterpreterIO } from '../interpreter/interpreter';
-import { registerSystem } from '../runtime/system';
-import { registerScanner } from '../runtime/scanner';
-import { registerMath } from '../runtime/math';
-import { registerCollections } from '../runtime/collections';
-import { registerWrappers } from '../runtime/wrappers';
-import { registerArrays } from '../runtime/arrays';
-import { registerRandom } from '../runtime/random';
-import { registerFileIO } from '../runtime/fileio';
+import { registerAll } from '../runtime/index';
 import { JavaException, StepLimitExceeded, ExecutionCancelled, RuntimeError } from '../interpreter/errors';
 import { ParseError } from '../parser/index';
 
@@ -335,14 +328,7 @@ export class Widget {
       this.currentInterpreter = interp;
 
       // Register all runtime libraries
-      registerSystem(interp, io);
-      registerScanner(interp, io);
-      registerMath(interp);
-      registerCollections(interp);
-      registerWrappers(interp);
-      registerArrays(interp);
-      registerRandom(interp);
-      registerFileIO(interp);
+      registerAll(interp, io);
 
       // Run
       await interp.run(ast);

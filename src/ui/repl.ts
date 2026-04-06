@@ -3,14 +3,7 @@
 import { Interpreter, InterpreterIO } from '../interpreter/interpreter'
 import { JavaValue, makeArray, makeString } from '../interpreter/types'
 import { parseReplInput } from '../parser/repl'
-import { registerSystem } from '../runtime/system'
-import { registerScanner } from '../runtime/scanner'
-import { registerMath } from '../runtime/math'
-import { registerCollections } from '../runtime/collections'
-import { registerWrappers } from '../runtime/wrappers'
-import { registerArrays } from '../runtime/arrays'
-import { registerRandom } from '../runtime/random'
-import { registerFileIO } from '../runtime/fileio'
+import { registerAll } from '../runtime/index'
 import {
   JavaException, StepLimitExceeded, ExecutionCancelled, RuntimeError,
   ReturnSignal, BreakSignal, ContinueSignal
@@ -74,14 +67,7 @@ export class ReplWidget {
     this.replEnv.define('args', makeArray('String', []))
 
     // Register runtime libraries
-    registerSystem(this.interp, io)
-    registerScanner(this.interp, io)
-    registerMath(this.interp)
-    registerCollections(this.interp)
-    registerWrappers(this.interp)
-    registerArrays(this.interp)
-    registerRandom(this.interp)
-    registerFileIO(this.interp)
+    registerAll(this.interp, io)
 
     // Events
     this.inputField.addEventListener('keydown', (e) => this.handleKeyDown(e))

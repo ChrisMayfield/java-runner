@@ -1,25 +1,7 @@
 // Parser for REPL input: tries multiple strategies to parse user input
 
-import { parse, ParseError } from './index'
+import { parse, ParseError, AUTO_IMPORTS } from './index'
 import { Statement, Expression, ClassDeclaration } from './ast'
-
-const AUTO_IMPORTS = [
-  'import java.util.Scanner;',
-  'import java.util.Random;',
-  'import java.util.ArrayList;',
-  'import java.util.HashMap;',
-  'import java.util.HashSet;',
-  'import java.util.Arrays;',
-  'import java.util.Collections;',
-  'import java.util.List;',
-  'import java.util.Map;',
-  'import java.util.Set;',
-  'import java.io.File;',
-  'import java.io.PrintWriter;',
-  'import java.io.FileWriter;',
-  'import java.io.BufferedReader;',
-  'import java.io.FileReader;',
-]
 
 export type ReplParseResult =
   | { kind: 'expression', expression: Expression }
