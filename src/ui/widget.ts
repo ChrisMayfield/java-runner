@@ -7,10 +7,69 @@ import { Interpreter, InterpreterIO, TestResult } from '../interpreter/interpret
 import { registerAll } from '../runtime/index';
 import { JavaException, StepLimitExceeded, ExecutionCancelled, RuntimeError } from '../interpreter/errors';
 import { ParseError } from '../parser/index';
+import { CompilationUnit } from '../parser/ast';
 
 interface SourceFile {
   name: string
   code: string
+}
+
+interface MappedLine {
+  fileName: string
+  line: number
+}
+
+/** Build a function that maps a line in the concatenated source back to a file + local line. */
+function buildLineMapper(files: SourceFile[]): (line: number) => MappedLine {
+  // Each file is joined by '\n\n', so there's a blank line between files
+  const offsets: { fileName: string, startLine: number, lineCount: number }[] = []
+  let currentLine = 1
+  for (const file of files) {
+    const lineCount = file.code.split('\n').length
+    offsets.push({ fileName: file.name, startLine: currentLine, lineCount })
+    currentLine += lineCount + 1 // +1 for the blank line from '\n\n' join
+  }
+  return (line: number) => {
+    for (let i = offsets.length - 1; i >= 0; i--) {
+      if (line >= offsets[i].startLine) {
+        return { fileName: offsets[i].fileName, line: line - offsets[i].startLine + 1 }
+      }
+    }
+    return { fileName: files[0]?.name ?? 'Unknown', line }
+  }
+}
+
+/**
+ * Parse multiple source files individually and merge into a single AST.
+ * Each file is parsed through parseSnippet() so imports are valid per-file.
+ * Throws ParseError with file name context on failure.
+ */
+function parseAllFiles(files: SourceFile[]): CompilationUnit {
+  if (files.length <= 1) {
+    return parseSnippet(files[0]?.code ?? '').ast
+  }
+
+  const merged: CompilationUnit = {
+    kind: 'CompilationUnit',
+    imports: [],
+    classes: [],
+    pos: { line: 1, column: 1 },
+  }
+
+  for (const file of files) {
+    try {
+      const { ast } = parseSnippet(file.code)
+      merged.imports.push(...ast.imports)
+      merged.classes.push(...ast.classes)
+    } catch (e) {
+      if (e instanceof ParseError) {
+        throw new ParseError(e.message, e.line, e.column, file.name)
+      }
+      throw e
+    }
+  }
+
+  return merged
 }
 
 /** Split code into separate files by top-level class declarations. */
@@ -33,10 +92,29 @@ function parseFiles(code: string): SourceFile[] {
     return [{ name, code: trimmed }]
   }
 
+  // For each class (i > 0), scan backwards to include preceding import/comment lines
+  const fileStarts = matches.map(m => m.index)
+  for (let i = 1; i < matches.length; i++) {
+    let pos = matches[i].index
+    // Walk backwards over blank lines and import/comment lines
+    while (pos > fileStarts[i - 1]) {
+      // Find the start of the previous line
+      const prevNewline = trimmed.lastIndexOf('\n', pos - 2)
+      const lineStart = prevNewline + 1
+      const line = trimmed.substring(lineStart, pos).trim()
+      if (line === '' || line.startsWith('import ') || line.startsWith('//') || line.startsWith('/*') || line.startsWith('*')) {
+        pos = lineStart
+      } else {
+        break
+      }
+    }
+    fileStarts[i] = pos
+  }
+
   const files: SourceFile[] = []
   for (let i = 0; i < matches.length; i++) {
-    const start = matches[i].index
-    const end = i + 1 < matches.length ? matches[i + 1].index : trimmed.length
+    const start = fileStarts[i]
+    const end = i + 1 < matches.length ? fileStarts[i + 1] : trimmed.length
     // Include any imports/comments before the first class in the first file
     const fileCode = (i === 0 ? trimmed.substring(0, end) : trimmed.substring(start, end)).trim()
     files.push({ name: matches[i].name + '.java', code: fileCode })
@@ -309,7 +387,12 @@ export class Widget {
       if (editor) file.code = editor.getCode();
     }
 
-    const source = this.files.map(f => f.code).join('\n\n');
+    const mapLine = this.files.length > 1 ? buildLineMapper(this.files) : null;
+    const fmtLine = (line: number) => {
+      if (!mapLine) return `line ${line}`
+      const m = mapLine(line)
+      return `${m.fileName}:${m.line}`
+    }
 
     // UI state: running
     this.runBtn.style.display = 'none';
@@ -322,8 +405,8 @@ export class Widget {
     await new Promise(r => setTimeout(r, 200));
 
     try {
-      // Parse (wraps bare snippets in class + main automatically)
-      const { ast } = parseSnippet(source);
+      // Parse each file individually and merge ASTs
+      const ast = parseAllFiles(this.files);
 
       // Create interpreter with IO wired to console
       const io: InterpreterIO = {
@@ -347,20 +430,24 @@ export class Widget {
         this.console.appendError('\n--- Step limit exceeded (possible infinite loop) ---\n');
       } else if (e instanceof JavaException) {
         this.console.appendError(`\nException: ${e.message}`);
-        if (e.line) this.console.appendError(` (line ${e.line})`);
+        if (e.line) this.console.appendError(` (${fmtLine(e.line)})`);
         this.console.appendError('\n');
         if (e.stackTrace.length > 0) {
           for (const frame of e.stackTrace) {
-            this.console.appendError(`  at ${frame.className}.${frame.methodName} (line ${frame.line})\n`);
+            this.console.appendError(`  at ${frame.className}.${frame.methodName} (${fmtLine(frame.line)})\n`);
           }
         }
       } else if (e instanceof ParseError) {
         this.console.appendError(`\nCompilation error: ${e.message}`);
-        if (e.line) this.console.appendError(` (line ${e.line})`);
+        if (e.fileName && e.line) {
+          this.console.appendError(` (${e.fileName}:${e.line})`);
+        } else if (e.line) {
+          this.console.appendError(` (${fmtLine(e.line)})`);
+        }
         this.console.appendError('\n');
       } else if (e instanceof RuntimeError) {
         this.console.appendError(`\nRuntime error: ${e.message}`);
-        if ((e as any).line) this.console.appendError(` (line ${(e as any).line})`);
+        if ((e as any).line) this.console.appendError(` (${fmtLine((e as any).line)})`);
         this.console.appendError('\n');
       } else if (e instanceof Error) {
         this.console.appendError(`\nError: ${e.message}\n`);
@@ -380,7 +467,12 @@ export class Widget {
       if (editor) file.code = editor.getCode();
     }
 
-    const source = this.files.map(f => f.code).join('\n\n');
+    const mapLine = this.files.length > 1 ? buildLineMapper(this.files) : null;
+    const fmtLine = (line: number) => {
+      if (!mapLine) return `line ${line}`
+      const m = mapLine(line)
+      return `${m.fileName}:${m.line}`
+    }
 
     // UI state: running
     this.runBtn.style.display = 'none';
@@ -392,7 +484,7 @@ export class Widget {
     await new Promise(r => setTimeout(r, 200));
 
     try {
-      const { ast } = parseSnippet(source);
+      const ast = parseAllFiles(this.files);
 
       const io: InterpreterIO = {
         print: (text) => this.console.print(text),
@@ -405,6 +497,11 @@ export class Widget {
       registerAll(interp, io);
 
       const results = await interp.runTests(ast);
+
+      if (results.length === 0) {
+        this.console.appendError('\nNo @Test methods found.\n');
+        return;
+      }
 
       // Summarize results
       let passed = 0, failed = 0, errors = 0;
@@ -442,7 +539,11 @@ export class Widget {
         this.console.appendError('\n--- Testing cancelled ---\n');
       } else if (e instanceof ParseError) {
         this.console.appendError(`\nCompilation error: ${e.message}`);
-        if (e.line) this.console.appendError(` (line ${e.line})`);
+        if (e.fileName && e.line) {
+          this.console.appendError(` (${e.fileName}:${e.line})`);
+        } else if (e.line) {
+          this.console.appendError(` (${fmtLine(e.line)})`);
+        }
         this.console.appendError('\n');
       } else if (e instanceof Error) {
         this.console.appendError(`\nError: ${e.message}\n`);

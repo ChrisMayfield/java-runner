@@ -2,10 +2,32 @@
 
 import { EditorView, basicSetup } from 'codemirror';
 import { java } from '@codemirror/lang-java';
-import { EditorState } from '@codemirror/state';
-import { keymap } from '@codemirror/view';
+import { EditorState, Range } from '@codemirror/state';
+import { Decoration, DecorationSet, keymap, ViewPlugin, ViewUpdate } from '@codemirror/view';
 import { indentWithTab } from '@codemirror/commands';
-import { indentUnit } from "@codemirror/language"
+import { indentUnit, syntaxTree } from "@codemirror/language"
+
+const annotationMark = Decoration.mark({ class: 'jr-annotation' })
+
+/** Highlight @Annotation nodes (MarkerAnnotation / Annotation) from the syntax tree. */
+const annotationHighlight = ViewPlugin.fromClass(class {
+  decorations: DecorationSet
+  constructor(view: EditorView) { this.decorations = this.build(view) }
+  update(update: ViewUpdate) {
+    if (update.docChanged || update.viewportChanged) this.decorations = this.build(update.view)
+  }
+  build(view: EditorView): DecorationSet {
+    const ranges: Range<Decoration>[] = []
+    syntaxTree(view.state).iterate({
+      enter(node) {
+        if (node.name === 'MarkerAnnotation' || node.name === 'Annotation') {
+          ranges.push(annotationMark.range(node.from, node.to))
+        }
+      }
+    })
+    return Decoration.set(ranges, true)
+  }
+}, { decorations: v => v.decorations })
 
 export class Editor {
   readonly element: HTMLElement;
@@ -23,11 +45,13 @@ export class Editor {
         keymap.of([indentWithTab]),
         indentUnit.of("    "),
         EditorView.contentAttributes.of({ 'aria-label': 'Code editor' }),
+        annotationHighlight,
         EditorView.theme({
           '&': { fontSize: '14px' },
           '.cm-content': { fontFamily: '"Fira Code", "Consolas", "Monaco", monospace' },
           '.cm-gutters': { fontFamily: '"Fira Code", "Consolas", "Monaco", monospace' },
           '.ͼi': { color: '#007744' },
+          '.jr-annotation': { color: '#7c3aed' },
         }),
       ],
     });

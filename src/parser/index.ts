@@ -8,7 +8,8 @@ export class ParseError extends Error {
   constructor(
     message: string,
     public line: number,
-    public column: number
+    public column: number,
+    public fileName?: string
   ) {
     super(message);
     this.name = 'ParseError';
@@ -16,9 +17,21 @@ export class ParseError extends Error {
 }
 
 export function parse(source: string): CompilationUnit {
-  const cst = javaParse(source);
+  let cst;
+  try {
+    cst = javaParse(source);
+  } catch (e: any) {
+    // java-parser (chevrotain) throws with embedded line/column in the message
+    const lineMatch = e.message?.match(/line:\s*(\d+)/);
+    const colMatch = e.message?.match(/column:\s*(\d+)/);
+    throw new ParseError(
+      e.message || 'Failed to parse source code',
+      lineMatch ? parseInt(lineMatch[1]) : 1,
+      colMatch ? parseInt(colMatch[1]) : 1
+    );
+  }
 
-  // java-parser doesn't throw on errors; check for lexing/parsing errors
+  // java-parser doesn't always throw on errors; check for lexing/parsing errors
   // It uses the chevrotain error recovery, so CST may be partial
   // We check if the CST is valid by looking at standard structure
   if (!cst || !cst.children) {
