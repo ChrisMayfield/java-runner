@@ -49,6 +49,7 @@ export class ReplWidget {
     this.inputField.className = 'jr-repl-input'
     this.inputField.autocomplete = 'off'
     this.inputField.spellcheck = false
+    this.inputField.setAttribute('aria-label', 'REPL input')
 
     this.inputLine.appendChild(this.promptEl)
     this.inputLine.appendChild(this.inputField)
@@ -97,10 +98,12 @@ export class ReplWidget {
       if (braceDepth <= 0 && parenDepth <= 0) {
         const fullInput = pending.join('\n')
         if (fullInput.trim()) {
-          this.appendInputEcho(PROMPT1 + pending[0])
+          this.appendInputEcho(PROMPT1, pending[0])
           for (let i = 1; i < pending.length; i++) {
-            this.appendInputEcho(PROMPT2 + pending[i])
+            this.appendInputEcho(PROMPT2, pending[i])
           }
+          this.history.push(fullInput)
+          this.historyIndex = this.history.length
           await this.executeInput(fullInput)
         }
         pending.length = 0
@@ -113,10 +116,12 @@ export class ReplWidget {
     if (pending.length > 0) {
       const fullInput = pending.join('\n')
       if (fullInput.trim()) {
-        this.appendInputEcho(PROMPT1 + pending[0])
+        this.appendInputEcho(PROMPT1, pending[0])
         for (let i = 1; i < pending.length; i++) {
-          this.appendInputEcho(PROMPT2 + pending[i])
+          this.appendInputEcho(PROMPT2, pending[i])
         }
+        this.history.push(fullInput)
+        this.historyIndex = this.history.length
         await this.executeInput(fullInput)
       }
     }
@@ -140,8 +145,8 @@ export class ReplWidget {
     this.inputField.value = ''
 
     // Echo the input
-    const prompt = this.pendingLines.length > 0 ? PROMPT2 : PROMPT1
-    this.appendInputEcho(prompt + input)
+    const prompt = this.pendingLines.length === 0 ? PROMPT1 : PROMPT2
+    this.appendInputEcho(prompt, input)
 
     // Accumulate for multi-line
     this.pendingLines.push(input)
@@ -262,18 +267,19 @@ export class ReplWidget {
     this.scrollToBottom()
   }
 
-  private appendInputEcho(text: string): void {
-    const span = document.createElement('span')
-    span.className = 'jr-repl-echo'
-    span.textContent = text + '\n'
-    this.outputEl.appendChild(span)
+  private appendInputEcho(prompt: string, text: string): void {
+    const promptSpan = document.createElement('span')
+    promptSpan.className = 'jr-repl-prompt'
+    promptSpan.textContent = prompt
+    const echoSpan = document.createElement('span')
+    echoSpan.className = 'jr-repl-echo'
+    echoSpan.textContent = text + '\n'
+    this.outputEl.appendChild(promptSpan)
+    this.outputEl.appendChild(echoSpan)
   }
 
   private appendResult(text: string): void {
-    const span = document.createElement('span')
-    span.className = 'jr-repl-result'
-    span.textContent = text + '\n'
-    this.outputEl.appendChild(span)
+    this.outputEl.appendChild(document.createTextNode(text + '\n'))
   }
 
   private appendError(text: string): void {

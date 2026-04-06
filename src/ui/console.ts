@@ -11,6 +11,8 @@ export class ConsolePanel {
   constructor() {
     this.element = document.createElement('div');
     this.element.className = 'jr-console';
+    this.element.setAttribute('tabindex', '0');
+    this.element.setAttribute('aria-label', 'Console output');
 
     this.outputEl = document.createElement('pre');
     this.outputEl.className = 'jr-console-output';
@@ -25,6 +27,7 @@ export class ConsolePanel {
     this.inputField.className = 'jr-console-input-field';
     this.inputField.autocomplete = 'off';
     this.inputField.spellcheck = false;
+    this.inputField.setAttribute('aria-label', 'Console input');
 
     this.submitBtn = document.createElement('button');
     this.submitBtn.className = 'jr-console-submit';

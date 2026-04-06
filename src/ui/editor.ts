@@ -22,10 +22,12 @@ export class Editor {
         java(),
         keymap.of([indentWithTab]),
         indentUnit.of("    "),
+        EditorView.contentAttributes.of({ 'aria-label': 'Code editor' }),
         EditorView.theme({
           '&': { fontSize: '14px' },
           '.cm-content': { fontFamily: '"Fira Code", "Consolas", "Monaco", monospace' },
           '.cm-gutters': { fontFamily: '"Fira Code", "Consolas", "Monaco", monospace' },
+          '.ͼi': { color: '#007744' },
         }),
       ],
     });
@@ -34,6 +36,10 @@ export class Editor {
       state,
       parent: this.element,
     });
+
+    // Ensure scrollable region is keyboard-accessible (WCAG 2.4.7)
+    this.view.scrollDOM.setAttribute('tabindex', '0');
+    this.view.scrollDOM.setAttribute('aria-label', 'Code editor scrollable region');
   }
 
   /** The inner CodeMirror element (resizes with content, unaffected by wrapper minHeight). */
