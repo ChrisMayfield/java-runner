@@ -62,6 +62,7 @@ export interface MethodDeclaration {
   kind: 'MethodDeclaration';
   name: string;
   modifiers: string[];
+  annotations: string[];
   returnType: TypeNode | 'void';
   parameters: Parameter[];
   body: BlockStatement | null;  // null for abstract

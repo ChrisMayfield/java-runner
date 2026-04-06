@@ -41,6 +41,13 @@ export interface InterpreterOptions {
   callDepthLimit?: number;
 }
 
+export interface TestResult {
+  className: string;
+  methodName: string;
+  status: 'pass' | 'fail' | 'error';
+  message?: string;
+}
+
 export class Interpreter {
   private registry: ClassRegistry = new ClassRegistry();
   private globalEnv: Environment = new Environment();
@@ -49,6 +56,7 @@ export class Interpreter {
   private stepLimit: number;
   private callDepthLimit: number;
   private stackTrace: StackFrame[] = [];
+  private staticImportClasses: string[] = [];
   public cancelled = false;
 
   constructor(
@@ -64,7 +72,15 @@ export class Interpreter {
     this.callDepth = 0;
     this.cancelled = false;
     this.stackTrace = [];
+    this.staticImportClasses = [];
     resetIds();
+
+    // Collect static imports (e.g. import static org.junit.jupiter.api.Assertions.*)
+    for (const imp of ast.imports) {
+      if (imp.isStatic && imp.isStar && imp.path.length > 0) {
+        this.staticImportClasses.push(imp.path[imp.path.length - 1]);
+      }
+    }
 
     // Phase 1: Register all user-defined classes
     for (const cls of ast.classes) {
@@ -118,6 +134,91 @@ export class Interpreter {
     } finally {
       this.stackTrace.pop();
     }
+  }
+
+  // ============================================================
+  // JUnit test runner
+  // ============================================================
+
+  async runTests(ast: CompilationUnit): Promise<TestResult[]> {
+    this.steps = 0;
+    this.callDepth = 0;
+    this.cancelled = false;
+    this.stackTrace = [];
+    this.staticImportClasses = [];
+    resetIds();
+
+    // Collect static imports
+    for (const imp of ast.imports) {
+      if (imp.isStatic && imp.isStar && imp.path.length > 0) {
+        this.staticImportClasses.push(imp.path[imp.path.length - 1]);
+      }
+    }
+
+    // Register all classes
+    for (const cls of ast.classes) {
+      this.registerClass(cls);
+    }
+
+    // Initialize static fields
+    for (const cls of ast.classes) {
+      const info = this.registry.get(cls.name);
+      if (info) {
+        await this.initializeStaticFields(info);
+      }
+    }
+
+    // Find all @Test methods
+    const results: TestResult[] = [];
+    for (const cls of ast.classes) {
+      const info = this.registry.get(cls.name);
+      if (!info) continue;
+
+      const testMethods = info.methods.filter(m => m.annotations?.includes('Test'));
+      if (testMethods.length === 0) continue;
+
+      for (const method of testMethods) {
+        // Reset step count for each test
+        this.steps = 0;
+        this.callDepth = 0;
+        this.stackTrace = [];
+
+        try {
+          // Create a new instance if not static, otherwise run in global env
+          const testEnv = this.globalEnv.child();
+          testEnv.define('__currentClass__', makeString(cls.name));
+
+          if (!method.modifiers.includes('static')) {
+            // Create an instance of the test class
+            const thisObj = makeObject(cls.name);
+            testEnv.define('this', thisObj);
+          }
+
+          this.stackTrace.push({ className: cls.name, methodName: method.name, line: method.pos.line });
+          await this.execBlock(method.body!, testEnv);
+          this.stackTrace.pop();
+
+          results.push({ className: cls.name, methodName: method.name, status: 'pass' });
+        } catch (e) {
+          if (e instanceof ReturnSignal) {
+            results.push({ className: cls.name, methodName: method.name, status: 'pass' });
+          } else if (e instanceof JavaException) {
+            const typeName = e.getTypeName();
+            if (typeName === 'AssertionError') {
+              results.push({ className: cls.name, methodName: method.name, status: 'fail', message: e.message });
+            } else {
+              results.push({ className: cls.name, methodName: method.name, status: 'error', message: `${typeName}: ${e.message}` });
+            }
+          } else if (e instanceof ExecutionCancelled) {
+            throw e; // propagate cancellation
+          } else if (e instanceof Error) {
+            results.push({ className: cls.name, methodName: method.name, status: 'error', message: e.message });
+          }
+        }
+      }
+    }
+
+    return results;
   }
 
   private registerClass(cls: ClassDeclaration): void {
@@ -946,6 +1047,12 @@ export class Interpreter {
       const objClassName = this.getClassName(thisObj);
       const result = this.findMethodVirtual(objClassName, methodName, args);
       if (result) return this.callUserMethod(result.method, thisObj, result.className, args, env, expr.pos.line);
+    }
+
+    // 7. Static-imported methods (e.g. JUnit Assertions)
+    for (const staticImportClass of this.staticImportClasses) {
+      const builtIn = this.registry.getBuiltInStaticMethod(staticImportClass, methodName);
+      if (builtIn) return builtIn(null, args, expr.pos.line);
     }
 
     throw new RuntimeError(`Method '${methodName}' not found`, expr.pos.line);

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>java-runner JUnit Tests</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../dist/javarunner.css">
+</head>
+<body>
+  <h1>java-runner JUnit Tests</h1>
+
+  <h2>1. Calculator</h2>
+  <script type="text/x-java">
+public class Calculator {
+    public static int add(int a, int b) {
+        return a + b;
+    }
+
+    public static int multiply(int a, int b) {
+        return a * b;
+    }
+
+    public static double divide(double a, double b) {
+        return a / b;
+    }
+}
+
+public class CalculatorTest {
+    @Test
+    public void testAdd() {
+        assertEquals(5, Calculator.add(2, 3));
+        assertEquals(0, Calculator.add(-1, 1));
+        assertEquals(-3, Calculator.add(-1, -2));
+    }
+
+    @Test
+    public void testMultiply() {
+        assertEquals(6, Calculator.multiply(2, 3));
+        assertEquals(0, Calculator.multiply(0, 5));
+        assertEquals(4, Calculator.multiply(-2, -2));
+    }
+
+    @Test
+    public void testDivide() {
+        assertEquals(2.5, Calculator.divide(5.0, 2.0), 0.001);
+        assertEquals(0.333, Calculator.divide(1.0, 3.0), 0.001);
+    }
+}
+  </script>
+
+  <h2>2. String Utilities</h2>
+  <script type="text/x-java">
+public class StringUtil {
+    public static String reverse(String s) {
+        String result = "";
+        for (int i = s.length() - 1; i >= 0; i--) {
+            result += s.charAt(i);
+        }
+        return result;
+    }
+
+    public static boolean isPalindrome(String s) {
+        return s.equals(reverse(s));
+    }
+
+    public static int countVowels(String s) {
+        int count = 0;
+        for (int i = 0; i &lt; s.length(); i++) {
+            char c = Character.toLowerCase(s.charAt(i));
+            if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+                count++;
+            }
+        }
+        return count;
+    }
+}
+
+public class StringUtilTest {
+    @Test
+    public void testReverse() {
+        assertEquals("cba", StringUtil.reverse("abc"));
+        assertEquals("", StringUtil.reverse(""));
+        assertEquals("a", StringUtil.reverse("a"));
+    }
+
+    @Test
+    public void testIsPalindrome() {
+        assertTrue(StringUtil.isPalindrome("racecar"));
+        assertTrue(StringUtil.isPalindrome(""));
+        assertFalse(StringUtil.isPalindrome("hello"));
+    }
+
+    @Test
+    public void testCountVowels() {
+        assertEquals(2, StringUtil.countVowels("hello"));
+        assertEquals(0, StringUtil.countVowels("xyz"));
+        assertEquals(5, StringUtil.countVowels("aeiou"));
+    }
+}
+  </script>
+
+  <h2>3. Array Operations</h2>
+  <script type="text/x-java">
+public class ArrayOps {
+    public static int[] doubleValues(int[] arr) {
+        int[] result = new int[arr.length];
+        for (int i = 0; i &lt; arr.length; i++) {
+            result[i] = arr[i] * 2;
+        }
+        return result;
+    }
+
+    public static int sum(int[] arr) {
+        int total = 0;
+        for (int n : arr) {
+            total += n;
+        }
+        return total;
+    }
+
+    public static int max(int[] arr) {
+        int m = arr[0];
+        for (int i = 1; i &lt; arr.length; i++) {
+            if (arr[i] > m) {
+                m = arr[i];
+            }
+        }
+        return m;
+    }
+}
+
+public class ArrayOpsTest {
+    @Test
+    public void testDoubleValues() {
+        int[] input = {1, 2, 3};
+        int[] expected = {2, 4, 6};
+        assertArrayEquals(expected, ArrayOps.doubleValues(input));
+    }
+
+    @Test
+    public void testSum() {
+        int[] arr = {1, 2, 3, 4, 5};
+        assertEquals(15, ArrayOps.sum(arr));
+    }
+
+    @Test
+    public void testMax() {
+        int[] arr = {3, 1, 4, 1, 5};
+        assertEquals(5, ArrayOps.max(arr));
+    }
+}
+  </script>
+
+  <h2>4. Null and Reference Checks</h2>
+  <script type="text/x-java">
+public class Container {
+    private String value;
+
+    public Container(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+
+public class ContainerTest {
+    @Test
+    public void testGetValue() {
+        Container c = new Container("hello");
+        assertEquals("hello", c.getValue());
+    }
+
+    @Test
+    public void testNullValue() {
+        Container c = new Container(null);
+        assertNull(c.getValue());
+    }
+
+    @Test
+    public void testSameReference() {
+        Container c = new Container("hi");
+        Container same = c;
+        assertSame(c, same);
+    }
+
+    @Test
+    public void testNotNull() {
+        Container c = new Container("world");
+        assertTrue(c != null);
+    }
+}
+  </script>
+
+  <script src="../dist/javarunner.js"></script>
+</body>
+</html>

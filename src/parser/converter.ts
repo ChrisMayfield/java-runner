@@ -242,9 +242,21 @@ function convertClassMemberDeclaration(node: any): ClassMember | null {
 
 function convertMethodDeclaration(node: any): MethodDeclaration {
   const modifiers: string[] = [];
+  const annotations: string[] = [];
   for (const mod of children(node, 'methodModifier')) {
     for (const key of Object.keys(mod.children)) {
-      if (key !== 'annotation') modifiers.push(key.toLowerCase());
+      if (key === 'annotation') {
+        const ann = mod.children[key][0];
+        if (ann && ann.children) {
+          const typeName = child(ann, 'typeName');
+          if (typeName) {
+            const ident = firstTok(children(typeName, 'Identifier'));
+            if (ident) annotations.push(ident);
+          }
+        }
+      } else {
+        modifiers.push(key.toLowerCase());
+      }
     }
   }
 
@@ -275,6 +287,7 @@ function convertMethodDeclaration(node: any): MethodDeclaration {
     kind: 'MethodDeclaration',
     name,
     modifiers,
+    annotations,
     returnType,
     parameters,
     body: bodyNode,

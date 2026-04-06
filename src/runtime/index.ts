@@ -9,6 +9,7 @@ import { registerWrappers } from './wrappers'
 import { registerArrays } from './arrays'
 import { registerRandom } from './random'
 import { registerFileIO } from './fileio'
+import { registerJUnit } from './junit'
 
 export function registerAll(interp: Interpreter, io: InterpreterIO): void {
   registerSystem(interp, io)
@@ -19,4 +20,5 @@ export function registerAll(interp: Interpreter, io: InterpreterIO): void {
   registerArrays(interp)
   registerRandom(interp)
   registerFileIO(interp)
+  registerJUnit(interp)
 }

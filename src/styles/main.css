@@ -20,6 +20,8 @@
   --jr-btn-stop-hover: #c82333;
   --jr-btn-reset: #6c757d;
   --jr-btn-reset-hover: #5a6268;
+  --jr-btn-test: #6f42c1;
+  --jr-btn-test-hover: #5a32a3;
   --jr-input-bg: #2d2d2d;
   --jr-input-border: #666666;
   --jr-radius: 6px;
@@ -65,6 +67,8 @@
 .jr-btn-stop:hover { background: var(--jr-btn-stop-hover); }
 .jr-btn-reset { background: var(--jr-btn-reset); }
 .jr-btn-reset:hover { background: var(--jr-btn-reset-hover); }
+.jr-btn-test { background: var(--jr-btn-test); }
+.jr-btn-test:hover { background: var(--jr-btn-test-hover); }
 
 /* ---- Tab bar ---- */
 

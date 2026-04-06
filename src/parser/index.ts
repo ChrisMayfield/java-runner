@@ -55,4 +55,6 @@ export const AUTO_IMPORTS = [
   'import java.io.FileWriter;',
   'import java.io.BufferedReader;',
   'import java.io.FileReader;',
+  'import static org.junit.jupiter.api.Assertions.*;',
+  'import org.junit.jupiter.api.Test;',
 ]

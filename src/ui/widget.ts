@@ -3,7 +3,7 @@
 import { Editor } from './editor';
 import { ConsolePanel } from './console';
 import { parseSnippet } from '../parser/snippet';
-import { Interpreter, InterpreterIO } from '../interpreter/interpreter';
+import { Interpreter, InterpreterIO, TestResult } from '../interpreter/interpreter';
 import { registerAll } from '../runtime/index';
 import { JavaException, StepLimitExceeded, ExecutionCancelled, RuntimeError } from '../interpreter/errors';
 import { ParseError } from '../parser/index';
@@ -56,6 +56,7 @@ export class Widget {
   private toolbar: HTMLElement;
   private console: ConsolePanel;
   private runBtn: HTMLButtonElement;
+  private testBtn: HTMLButtonElement;
   private stopBtn: HTMLButtonElement;
   private resetBtn: HTMLButtonElement;
   private currentInterpreter: Interpreter | null = null;
@@ -97,6 +98,10 @@ export class Widget {
     this.runBtn.className = 'jr-btn jr-btn-run';
     this.runBtn.textContent = '▶ Run';
 
+    this.testBtn = document.createElement('button');
+    this.testBtn.className = 'jr-btn jr-btn-test';
+    this.testBtn.textContent = '✓ Test';
+
     this.stopBtn = document.createElement('button');
     this.stopBtn.className = 'jr-btn jr-btn-stop';
     this.stopBtn.textContent = '■ Stop';
@@ -107,6 +112,7 @@ export class Widget {
     this.resetBtn.textContent = '↺ Reset';
 
     this.toolbar.appendChild(this.runBtn);
+    this.toolbar.appendChild(this.testBtn);
     this.toolbar.appendChild(this.stopBtn);
     this.toolbar.appendChild(this.resetBtn);
 
@@ -122,6 +128,7 @@ export class Widget {
 
     // Events
     this.runBtn.addEventListener('click', () => this.run());
+    this.testBtn.addEventListener('click', () => this.test());
     this.stopBtn.addEventListener('click', () => this.stop());
     this.resetBtn.addEventListener('click', () => this.reset());
 
@@ -306,6 +313,7 @@ export class Widget {
 
     // UI state: running
     this.runBtn.style.display = 'none';
+    this.testBtn.style.display = 'none';
     this.stopBtn.style.display = '';
     this.console.clear();
     this.console.show();
@@ -360,6 +368,89 @@ export class Widget {
     } finally {
       this.currentInterpreter = null;
       this.runBtn.style.display = '';
+      this.testBtn.style.display = '';
+      this.stopBtn.style.display = 'none';
+    }
+  }
+
+  async test(): Promise<void> {
+    // Sync editor contents back to file objects
+    for (const file of this.files) {
+      const editor = this.editors.get(file.name);
+      if (editor) file.code = editor.getCode();
+    }
+
+    const source = this.files.map(f => f.code).join('\n\n');
+
+    // UI state: running
+    this.runBtn.style.display = 'none';
+    this.testBtn.style.display = 'none';
+    this.stopBtn.style.display = '';
+    this.console.clear();
+    this.console.show();
+
+    await new Promise(r => setTimeout(r, 200));
+
+    try {
+      const { ast } = parseSnippet(source);
+
+      const io: InterpreterIO = {
+        print: (text) => this.console.print(text),
+        println: (text) => this.console.println(text),
+        requestInput: (prompt) => this.console.requestInput(prompt),
+      };
+
+      const interp = new Interpreter(io);
+      this.currentInterpreter = interp;
+      registerAll(interp, io);
+
+      const results = await interp.runTests(ast);
+
+      // Summarize results
+      let passed = 0, failed = 0, errors = 0;
+      for (const r of results) {
+        if (r.status === 'pass') passed++;
+        else if (r.status === 'fail') failed++;
+        else errors++;
+      }
+
+      this.console.println('');
+      for (const r of results) {
+        if (r.status === 'pass') {
+          this.console.println(`  ✓ ${r.className}.${r.methodName}`);
+        } else if (r.status === 'fail') {
+          this.console.appendError(`  ✗ ${r.className}.${r.methodName}\n`);
+          if (r.message) this.console.appendError(`    ${r.message}\n`);
+        } else {
+          this.console.appendError(`  ! ${r.className}.${r.methodName}\n`);
+          if (r.message) this.console.appendError(`    ${r.message}\n`);
+        }
+      }
+
+      this.console.println('');
+      if (failed === 0 && errors === 0) {
+        this.console.println(`All ${passed} test${passed !== 1 ? 's' : ''} passed.`);
+      } else {
+        const parts: string[] = [];
+        parts.push(`${passed} passed`);
+        if (failed > 0) parts.push(`${failed} failed`);
+        if (errors > 0) parts.push(`${errors} error${errors !== 1 ? 's' : ''}`);
+        this.console.appendError(`${parts.join(', ')}.\n`);
+      }
+    } catch (e: unknown) {
+      if (e instanceof ExecutionCancelled) {
+        this.console.appendError('\n--- Testing cancelled ---\n');
+      } else if (e instanceof ParseError) {
+        this.console.appendError(`\nCompilation error: ${e.message}`);
+        if (e.line) this.console.appendError(` (line ${e.line})`);
+        this.console.appendError('\n');
+      } else if (e instanceof Error) {
+        this.console.appendError(`\nError: ${e.message}\n`);
+      }
+    } finally {
+      this.currentInterpreter = null;
+      this.runBtn.style.display = '';
+      this.testBtn.style.display = '';
       this.stopBtn.style.display = 'none';
     }
   }
@@ -370,6 +461,7 @@ export class Widget {
       this.console.abortInput();
     }
     this.runBtn.style.display = '';
+    this.testBtn.style.display = '';
     this.stopBtn.style.display = 'none';
   }
 
@@ -397,6 +489,7 @@ export class Widget {
     this.console.clear();
     this.console.hide();
     this.runBtn.style.display = '';
+    this.testBtn.style.display = '';
     this.stopBtn.style.display = 'none';
   }
 

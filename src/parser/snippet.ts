@@ -23,7 +23,19 @@ export function parseSnippet(source: string): SnippetResult {
   const level = detectWrapLevel(source)
 
   if (level === 'none') {
-    return { ast: parse(source), lineOffset: 0 }
+    const imports = AUTO_IMPORTS.join('\n')
+    const wrapped = imports + '\n' + source
+    const lineOffset = AUTO_IMPORTS.length
+    try {
+      const ast = parse(wrapped)
+      adjustPositions(ast, lineOffset)
+      return { ast, lineOffset: 0 }
+    } catch (e) {
+      if (e instanceof ParseError && e.line > lineOffset) {
+        throw new ParseError(e.message, e.line - lineOffset, e.column)
+      }
+      throw e
+    }
   }
 
   const imports = AUTO_IMPORTS.join('\n')
