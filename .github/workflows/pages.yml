@@ -36,12 +36,9 @@ jobs:
       - name: Prepare Pages artifact
         run: |
           mkdir -p site/examples site/dist
-          cp index.html site/index.html
-          cp styles.css site/styles.css
-          cp examples/programs.html site/examples/programs.html
-          cp examples/snippets.html site/examples/snippets.html
-          cp dist/javarunner.js site/dist/javarunner.js
-          cp dist/javarunner.css site/dist/javarunner.css
+          cp index.html styles.css site/
+          cp examples/*.html site/examples/
+          cp dist/javarunner.* site/dist/
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
