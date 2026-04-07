@@ -17,7 +17,7 @@ const PROMPT2 = ' ...> ';
 export class ReplWidget {
   readonly element: HTMLElement
   private outputEl: HTMLElement
-  private inputLine: HTMLElement
+  private inputLine: HTMLFormElement
   private promptEl: HTMLSpanElement
   private inputField: HTMLInputElement
   private interp: Interpreter
@@ -37,8 +37,9 @@ export class ReplWidget {
     this.outputEl.className = 'jr-repl-output'
     this.element.appendChild(this.outputEl)
 
-    this.inputLine = document.createElement('div')
+    this.inputLine = document.createElement('form')
     this.inputLine.className = 'jr-repl-input-line'
+    this.inputLine.setAttribute('action', '')
 
     this.promptEl = document.createElement('span')
     this.promptEl.className = 'jr-repl-prompt'
@@ -47,9 +48,13 @@ export class ReplWidget {
     this.inputField = document.createElement('input')
     this.inputField.type = 'text'
     this.inputField.className = 'jr-repl-input'
+    this.inputField.name = 'repl'
     this.inputField.autocomplete = 'off'
     this.inputField.spellcheck = false
+    this.inputField.setAttribute('autocapitalize', 'off')
     this.inputField.setAttribute('aria-label', 'REPL input')
+    this.inputField.setAttribute('enterkeyhint', 'send')
+    this.inputField.setAttribute('inputmode', 'text')
 
     this.inputLine.appendChild(this.promptEl)
     this.inputLine.appendChild(this.inputField)
@@ -71,6 +76,10 @@ export class ReplWidget {
     registerAll(this.interp, io)
 
     // Events
+    this.inputLine.addEventListener('submit', (e) => {
+      e.preventDefault()
+      this.handleSubmit()
+    })
     this.inputField.addEventListener('keydown', (e) => this.handleKeyDown(e))
     this.element.addEventListener('click', () => this.inputField.focus())
 

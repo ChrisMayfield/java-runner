@@ -3,7 +3,7 @@
 export class ConsolePanel {
   readonly element: HTMLElement;
   private outputEl: HTMLElement;
-  private inputLine: HTMLElement;
+  private inputLine: HTMLFormElement;
   private inputField: HTMLInputElement;
   private submitBtn: HTMLButtonElement;
   private pendingResolve: ((value: string) => void) | null = null;
@@ -18,31 +18,34 @@ export class ConsolePanel {
     this.outputEl.className = 'jr-console-output';
     this.element.appendChild(this.outputEl);
 
-    this.inputLine = document.createElement('div');
+    this.inputLine = document.createElement('form');
     this.inputLine.className = 'jr-console-input';
+    this.inputLine.setAttribute('action', '');
     this.inputLine.style.display = 'none';
 
     this.inputField = document.createElement('input');
     this.inputField.type = 'text';
     this.inputField.className = 'jr-console-input-field';
+    this.inputField.name = 'console';
     this.inputField.autocomplete = 'off';
     this.inputField.spellcheck = false;
+    this.inputField.setAttribute('autocapitalize', 'off');
     this.inputField.setAttribute('aria-label', 'Console input');
+    this.inputField.setAttribute('enterkeyhint', 'send');
+    this.inputField.setAttribute('inputmode', 'text');
 
     this.submitBtn = document.createElement('button');
     this.submitBtn.className = 'jr-console-submit';
+    this.submitBtn.type = 'submit';
     this.submitBtn.textContent = 'Enter';
 
     this.inputLine.appendChild(this.inputField);
     this.inputLine.appendChild(this.submitBtn);
     this.element.appendChild(this.inputLine);
 
-    this.submitBtn.addEventListener('click', () => this.submitInput());
-    this.inputField.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        this.submitInput();
-      }
+    this.inputLine.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.submitInput();
     });
   }
 
