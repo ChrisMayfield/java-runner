@@ -7,10 +7,10 @@ Client-side Java interpreter for CS1 education, bundled as a single IIFE script 
 ## Build and Test
 
 ```bash
-npm run build     # production build → dist/javarunner.js + dist/javarunner.css
-npm run watch     # rebuild on changes
-npm test          # vitest — 236 tests across test/{basics,collections,stdlib,programs,snippets,repl}.test.ts
-npm run test:watch # re-run tests on changes
+npm run build       # production build
+npm run watch       # rebuild on changes
+npm run test        # 262 vitest tests
+npm run test:watch  # rerun tests on changes
 ```
 
 TypeScript strict mode. Check types with `npx tsc --noEmit`.
@@ -71,6 +71,6 @@ These were discovered during development and have corresponding fixes in `conver
 ## Style
 
 - TypeScript strict mode, ES2020 target
-- No semicolon preference in generated code — follow existing file style
+- Semicolons preferred in generated code
 - Minimal comments — code should be self-explanatory
 - No over-engineering: only add features directly needed for CS1/CS2 curriculum
