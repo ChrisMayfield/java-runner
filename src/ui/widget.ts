@@ -22,21 +22,21 @@ interface MappedLine {
 /** Build a function that maps a line in the concatenated source back to a file + local line. */
 function buildLineMapper(files: SourceFile[]): (line: number) => MappedLine {
   // Each file is joined by '\n\n', so there's a blank line between files
-  const offsets: { fileName: string, startLine: number, lineCount: number }[] = []
-  let currentLine = 1
+  const offsets: { fileName: string, startLine: number, lineCount: number }[] = [];
+  let currentLine = 1;
   for (const file of files) {
-    const lineCount = file.code.split('\n').length
-    offsets.push({ fileName: file.name, startLine: currentLine, lineCount })
-    currentLine += lineCount + 1 // +1 for the blank line from '\n\n' join
+    const lineCount = file.code.split('\n').length;
+    offsets.push({ fileName: file.name, startLine: currentLine, lineCount });
+    currentLine += lineCount + 1; // +1 for the blank line from '\n\n' join
   }
   return (line: number) => {
     for (let i = offsets.length - 1; i >= 0; i--) {
       if (line >= offsets[i].startLine) {
-        return { fileName: offsets[i].fileName, line: line - offsets[i].startLine + 1 }
+        return { fileName: offsets[i].fileName, line: line - offsets[i].startLine + 1 };
       }
     }
-    return { fileName: files[0]?.name ?? 'Unknown', line }
-  }
+    return { fileName: files[0]?.name ?? 'Unknown', line };
+  };
 }
 
 /**
@@ -46,7 +46,7 @@ function buildLineMapper(files: SourceFile[]): (line: number) => MappedLine {
  */
 function parseAllFiles(files: SourceFile[]): CompilationUnit {
   if (files.length <= 1) {
-    return parseSnippet(files[0]?.code ?? '').ast
+    return parseSnippet(files[0]?.code ?? '').ast;
   }
 
   const merged: CompilationUnit = {
@@ -54,72 +54,72 @@ function parseAllFiles(files: SourceFile[]): CompilationUnit {
     imports: [],
     classes: [],
     pos: { line: 1, column: 1 },
-  }
+  };
 
   for (const file of files) {
     try {
-      const { ast } = parseSnippet(file.code)
-      merged.imports.push(...ast.imports)
-      merged.classes.push(...ast.classes)
+      const { ast } = parseSnippet(file.code);
+      merged.imports.push(...ast.imports);
+      merged.classes.push(...ast.classes);
     } catch (e) {
       if (e instanceof ParseError) {
-        throw new ParseError(e.message, e.line, e.column, file.name)
+        throw new ParseError(e.message, e.line, e.column, file.name);
       }
-      throw e
+      throw e;
     }
   }
 
-  return merged
+  return merged;
 }
 
 /** Split code into separate files by top-level class declarations. */
 function parseFiles(code: string): SourceFile[] {
-  const trimmed = code.trim()
+  const trimmed = code.trim();
   // Match top-level class/interface/enum declarations (not indented)
-  const classRe = /^(?:(?:public|abstract|final)\s+)*(?:class|interface|enum)\s+(\w+)/gm
-  const matches: { name: string, index: number }[] = []
-  let m: RegExpExecArray | null
+  const classRe = /^(?:(?:public|abstract|final)\s+)*(?:class|interface|enum)\s+(\w+)/gm;
+  const matches: { name: string, index: number }[] = [];
+  let m: RegExpExecArray | null;
   while ((m = classRe.exec(trimmed)) !== null) {
     // Only consider matches at column 0 (top-level)
-    const lineStart = trimmed.lastIndexOf('\n', m.index) + 1
+    const lineStart = trimmed.lastIndexOf('\n', m.index) + 1;
     if (m.index === lineStart) {
-      matches.push({ name: m[1], index: m.index })
+      matches.push({ name: m[1], index: m.index });
     }
   }
 
   if (matches.length <= 1) {
-    const name = matches.length === 1 ? matches[0].name + '.java' : 'Main.java'
-    return [{ name, code: trimmed }]
+    const name = matches.length === 1 ? matches[0].name + '.java' : 'Main.java';
+    return [{ name, code: trimmed }];
   }
 
   // For each class (i > 0), scan backwards to include preceding import/comment lines
-  const fileStarts = matches.map(m => m.index)
+  const fileStarts = matches.map(m => m.index);
   for (let i = 1; i < matches.length; i++) {
-    let pos = matches[i].index
+    let pos = matches[i].index;
     // Walk backwards over blank lines and import/comment lines
     while (pos > fileStarts[i - 1]) {
       // Find the start of the previous line
-      const prevNewline = trimmed.lastIndexOf('\n', pos - 2)
-      const lineStart = prevNewline + 1
-      const line = trimmed.substring(lineStart, pos).trim()
+      const prevNewline = trimmed.lastIndexOf('\n', pos - 2);
+      const lineStart = prevNewline + 1;
+      const line = trimmed.substring(lineStart, pos).trim();
       if (line === '' || line.startsWith('import ') || line.startsWith('//') || line.startsWith('/*') || line.startsWith('*')) {
-        pos = lineStart
+        pos = lineStart;
       } else {
-        break
+        break;
       }
     }
-    fileStarts[i] = pos
+    fileStarts[i] = pos;
   }
 
-  const files: SourceFile[] = []
+  const files: SourceFile[] = [];
   for (let i = 0; i < matches.length; i++) {
-    const start = fileStarts[i]
-    const end = i + 1 < matches.length ? fileStarts[i + 1] : trimmed.length
+    const start = fileStarts[i];
+    const end = i + 1 < matches.length ? fileStarts[i + 1] : trimmed.length;
     // Include any imports/comments before the first class in the first file
-    const fileCode = (i === 0 ? trimmed.substring(0, end) : trimmed.substring(start, end)).trim()
-    files.push({ name: matches[i].name + '.java', code: fileCode })
+    const fileCode = (i === 0 ? trimmed.substring(0, end) : trimmed.substring(start, end)).trim();
+    files.push({ name: matches[i].name + '.java', code: fileCode });
   }
-  return files
+  return files;
 }
 
 export class Widget {
@@ -389,10 +389,10 @@ export class Widget {
 
     const mapLine = this.files.length > 1 ? buildLineMapper(this.files) : null;
     const fmtLine = (line: number) => {
-      if (!mapLine) return `line ${line}`
-      const m = mapLine(line)
-      return `${m.fileName}:${m.line}`
-    }
+      if (!mapLine) return `line ${line}`;
+      const m = mapLine(line);
+      return `${m.fileName}:${m.line}`;
+    };
 
     // UI state: running
     this.runBtn.style.display = 'none';
@@ -469,10 +469,10 @@ export class Widget {
 
     const mapLine = this.files.length > 1 ? buildLineMapper(this.files) : null;
     const fmtLine = (line: number) => {
-      if (!mapLine) return `line ${line}`
-      const m = mapLine(line)
-      return `${m.fileName}:${m.line}`
-    }
+      if (!mapLine) return `line ${line}`;
+      const m = mapLine(line);
+      return `${m.fileName}:${m.line}`;
+    };
 
     // UI state: running
     this.runBtn.style.display = 'none';

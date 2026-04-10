@@ -504,7 +504,7 @@ export class Interpreter {
       }
       const cond = await this.evalExpr(stmt.condition, env);
       if (!this.isTruthy(cond)) break;
-    } while (true); // eslint-disable-line no-constant-condition
+    } while (true);  
   }
 
   private async execSwitch(stmt: SwitchStatement, env: Environment): Promise<void> {

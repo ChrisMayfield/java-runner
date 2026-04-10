@@ -5,29 +5,29 @@ import { java } from '@codemirror/lang-java';
 import { EditorState, Range } from '@codemirror/state';
 import { Decoration, DecorationSet, keymap, ViewPlugin, ViewUpdate } from '@codemirror/view';
 import { indentWithTab } from '@codemirror/commands';
-import { indentUnit, syntaxTree } from "@codemirror/language"
+import { indentUnit, syntaxTree } from "@codemirror/language";
 
-const annotationMark = Decoration.mark({ class: 'jr-annotation' })
+const annotationMark = Decoration.mark({ class: 'jr-annotation' });
 
 /** Highlight @Annotation nodes (MarkerAnnotation / Annotation) from the syntax tree. */
 const annotationHighlight = ViewPlugin.fromClass(class {
-  decorations: DecorationSet
-  constructor(view: EditorView) { this.decorations = this.build(view) }
+  decorations: DecorationSet;
+  constructor(view: EditorView) { this.decorations = this.build(view); }
   update(update: ViewUpdate) {
-    if (update.docChanged || update.viewportChanged) this.decorations = this.build(update.view)
+    if (update.docChanged || update.viewportChanged) this.decorations = this.build(update.view);
   }
   build(view: EditorView): DecorationSet {
-    const ranges: Range<Decoration>[] = []
+    const ranges: Range<Decoration>[] = [];
     syntaxTree(view.state).iterate({
       enter(node) {
         if (node.name === 'MarkerAnnotation' || node.name === 'Annotation') {
-          ranges.push(annotationMark.range(node.from, node.to))
+          ranges.push(annotationMark.range(node.from, node.to));
         }
       }
-    })
-    return Decoration.set(ranges, true)
+    });
+    return Decoration.set(ranges, true);
   }
-}, { decorations: v => v.decorations })
+}, { decorations: v => v.decorations });
 
 export class Editor {
   readonly element: HTMLElement;
